@@ -39,15 +39,15 @@ return [
         ],
         'assetManager' => [
             'appendTimestamp' => true
-        ]
-        /*
+        ],
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'video/update/<video_id>' => 'video/update'
             ],
         ],
-        */
+
     ],
     'params' => $params,
 ];

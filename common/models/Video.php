@@ -3,6 +3,8 @@
 namespace common\models;
 
 use Yii;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
 use yii\helpers\FileHelper;
 use yii\web\UploadedFile;
 
@@ -24,6 +26,9 @@ use yii\web\UploadedFile;
  */
 class Video extends \yii\db\ActiveRecord
 {
+    const STATUS_UNLISTED = 0;
+    const STATUS_PUBLISHED = 1;
+
     /**
      * @var UploadedFile
      */
@@ -35,6 +40,19 @@ class Video extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return '{{%video}}';
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class
+            ],
+            [
+                'class' => BlameableBehavior::class,
+                'updatedByAttribute' => false
+            ]
+        ];
     }
 
     /**
@@ -49,6 +67,8 @@ class Video extends \yii\db\ActiveRecord
             [['video_id'], 'string', 'max' => 16],
             [['title', 'tags', 'video_name'], 'string', 'max' => 512],
             [['video_id'], 'unique'],
+            ['has_thumbnail', 'default', 'value' => 0],
+            ['status', 'default', 'value' => self::STATUS_UNLISTED],
             [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['created_by' => 'id']],
         ];
     }
@@ -112,5 +132,10 @@ class Video extends \yii\db\ActiveRecord
             $this->video->saveAs($videoPath);
         }
         return true;
+    }
+
+    public function getVideoLink()
+    {
+        return Yii::$app->params['frontendUrl'].'/storage/videos/'.$this->video_id.'.mp4';
     }
 }
